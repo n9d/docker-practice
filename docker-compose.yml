@@ -1,0 +1,7 @@
+services:
+  dind:
+    build:
+      context: .
+    container_name: dind
+    privileged: true
+
