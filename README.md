@@ -164,6 +164,16 @@ hello-world
 
 `docker exec コンテナ名`コマンドはバックグラウンドで動作しているコンテナに接続してコマンドを実行することができる
 
+`docker exec` は動作しているコンテナに接続しているので、ファイルを書き換えるとコンテナが動作している間保存される。
+
+```sh
+e61b3fb56fff:/src# docker exec my_node sh -c 'echo hello world > /tmp/hello.txt'
+e61b3fb56fff:/src# docker exec my_node sh -c 'cat /tmp/hello.txt'
+hello world
+```
+
+終わったので削除する
+
 ```sh
 009845da90b8:/src# docker kill my_node
 my_node
