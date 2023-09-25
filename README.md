@@ -242,6 +242,19 @@ my_python
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 ```
 
+```mermaid
+flowchart LR
+id1([何もない])-->|run|RUNNING
+id2([何もない])-->|create|CREATED
+CREATED-->|start|RUNNING
+CREATED-->|remove|DELETED
+RUNNING-->|stop|STOPPED
+RUNNING-->|pause|PAUSED
+PAUSED-->|unpause|RUNNING
+STOPPED-->|remove|DELETED
+STOPPED-->|start|RUNNING
+```
+
 ## オリジナルのコンテナを作る
 
 自分で作ったプログラムでオリジナルコンテナを作りたい。
@@ -255,6 +268,8 @@ print("hello world")
 ```
 
 Dockerfileを作成する
+FROM句は、どのコンテナイメージをベースにするかが記述されている（今回は python:slim）
+COPY句は、ホストマシンからコンテナへのファイルのコピー
 
 ```sh
 2c65a0fa7845:/src# echo -e 'FROM python:slim\nCOPY my_program.py /src/my_program.py' > Dockerfile
@@ -298,10 +313,12 @@ hello world
 
 以上のように、自分でオリジナルのコンテナイメージを作ることができる
 
+
+
 [dockerhub](https://hub.docker.com)は、様々な人が作ったコンテナイメージが存在する。
 また、自分で作ったイメージをアップすることもできる。(まあめったにしないが)
 
-ついでに自動実行してみる
+ついでに自動実行してみる。DockerfileのCMDセクションはコンテナの自動実行を指定する。
 
 ```sh
 2c65a0fa7845:/src# echo 'CMD ["python", "/src/my_program.py"]' >> Dockerfile
@@ -349,8 +366,34 @@ REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
 
 ## バインドマウント
 
+バインドマウントは、ホストマシンのディレクトリをコンテナ内のディレクトリにマウントする。
+
+(ここにバインドマウントの例を入れる)
+
+macやwindowsのdockerが遅い理由は主にここが理由で、コンテナからホストマシン(mac/win)のディスクにアクセスするのにかなりの負荷がある。
+なので、可能な限り名前付きvolumeにしたほうが良い。
+
 ## 名前付きvolume
+
+名前付きvolumeは、コンテナに仮想ディスクを追加し、コンテナ内のディレクトリにマウントする。
+volumeはコンテナからは参照できるけど、ホストからは見れない。
+
+(ここに名前付きvolumeの例を入れる)
+
+内容は永続的なので、
+- nodeのnpmや、railsのbundle、djangoのpoetry等のパッケージが保存されるディレクトリに使うと、２回目以降の実行時にすでに持っているので高速化できる。
+- mysqlやpostgressのdbファイルが保存されるディレクトリに使うと、マシンを落としても記憶される。
 
 ## docker-compose
 
+いろいろdockerコマンドを説明してきたが、オプションが多すぎて覚えられないと思う。
+それらを助けるのがdocker-compose
+docker-composeはコンテナを起動するとき、いろんなオプションをつけてdockerコマンドを打つのが面倒なのを楽にしてくれる
 
+(ここに例を入れる)
+
+## 複数 docker-compose.yml
+
+docker-compose.ymlファイルは `-f` オプションか 環境変数COMPOSE_FILEにて指定することができる。
+
+(ここに例を入れる)
