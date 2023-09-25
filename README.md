@@ -368,7 +368,24 @@ REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
 
 バインドマウントは、ホストマシンのディレクトリをコンテナ内のディレクトリにマウントする。
 
-(ここにバインドマウントの例を入れる)
+ホストのカレントディレクトリに`hello.txt`を作っても、もちろんコンテナ内では見えない。
+
+```sh
+6b6d5be0ee3d:/src# echo hello-world > hello.txt
+6b6d5be0ee3d:/src# cat hello.txt
+hello-world
+6b6d5be0ee3d:/src# docker run --rm python:slim bash -c 'ls /src'
+ls: cannot access '/src': No such file or directory
+```
+
+ところが、 `-v .:/src` でカレントディレクトリをコンテナの`/src` にマウントすることができる
+
+```sh
+6b6d5be0ee3d:/src# docker run --rm -v .:/src python:slim bash -c 'ls /src'
+hello.txt
+6b6d5be0ee3d:/src# docker run --rm -v .:/src python:slim bash -c 'cat /src/hello.txt'
+hello-world
+```
 
 macやwindowsのdockerが遅い理由は主にここが理由で、コンテナからホストマシン(mac/win)のディスクにアクセスするのにかなりの負荷がある。
 なので、可能な限り名前付きvolumeにしたほうが良い。
@@ -378,11 +395,35 @@ macやwindowsのdockerが遅い理由は主にここが理由で、コンテナ�
 名前付きvolumeは、コンテナに仮想ディスクを追加し、コンテナ内のディレクトリにマウントする。
 volumeはコンテナからは参照できるけど、ホストからは見れない。
 
-(ここに名前付きvolumeの例を入れる)
+my_volumeというvolumeを作成し、pythonコンテナの`/src`にマウントし、そこにhello.txtをおく。
+次に、nodeコンテナもmy_volumeを`/src`にマウントしhello.txtを読むことができる
+
+```sh
+6b6d5be0ee3d:/src# docker volume create my_volume
+my_volume
+6b6d5be0ee3d:/src# docker volume ls
+DRIVER    VOLUME NAME
+local     my_volume
+6b6d5be0ee3d:/src# docker run --rm -v my_volume:/src python:slim bash -c 'echo hello-world > /src/hello.txt'
+6b6d5be0ee3d:/src# docker run --rm -v my_volume:/src node:slim bash -c 'cat /src/hello.txt'
+hello-world
+```
 
 内容は永続的なので、
 - nodeのnpmや、railsのbundle、djangoのpoetry等のパッケージが保存されるディレクトリに使うと、２回目以降の実行時にすでに持っているので高速化できる。
 - mysqlやpostgressのdbファイルが保存されるディレクトリに使うと、マシンを落としても記憶される。
+
+volumeの削除は`docker volumes rm volume名`
+
+```sh
+6b6d5be0ee3d:/src# docker volume ls
+DRIVER    VOLUME NAME
+local     my_volume
+6b6d5be0ee3d:/src# docker volume rm my_volume
+my_volume
+6b6d5be0ee3d:/src# docker volume ls
+DRIVER    VOLUME NAME
+```
 
 ## docker-compose
 
