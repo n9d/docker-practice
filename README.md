@@ -21,7 +21,7 @@ docker-compose down
 ## `docker ps`と hello-worldコンテナ
 
 ```sh
-e3b61d726f91:/src# docker ps
+dind/src$ docker ps
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 ```
 もちろん何もない
@@ -35,14 +35,14 @@ docker run hello-world
 ここで`docker ps` すると
 
 ```sh
-e3b61d726f91:/src# docker ps
+dind/src$ docker ps
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 ```
 
 一見何もないように見えるが実は残ってる
 
 ```sh
-e3b61d726f91:/src# docker ps -a
+dind/src$ docker ps -a
 CONTAINER ID   IMAGE         COMMAND    CREATED         STATUS                     PORTS     NAMES
 993729cdbab1   hello-world   "/hello"   4 seconds ago   Exited (0) 3 seconds ago             crazy_visvesvaraya
 ```
@@ -50,9 +50,9 @@ CONTAINER ID   IMAGE         COMMAND    CREATED         STATUS                  
 これを消すためには `docker rm コンテナID`
 
 ```sh
-e3b61d726f91:/src# docker rm 993729cdbab1
+dind/src$ docker rm 993729cdbab1
 993729cdbab1
-e3b61d726f91:/src# docker ps -a
+dind/src$ docker ps -a
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 ```
 
@@ -61,21 +61,21 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 なので runするときには原則 `docker run --rm` とする
 
 ```sh
-e3b61d726f91:/src# docker run --rm hello-world
+dind/src$ docker run --rm hello-world
 
 Hello from Docker!
 This message shows that your installation appears to be working correctly.
 
 (中略)
 
-e3b61d726f91:/src# docker ps -a
+dind/src$ docker ps -a
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 ```
 
 ダウンロードしてきたイメージはどこにあるのか？
 
 ```sh
-009845da90b8:/src# docker images
+dind:/src$ docker images
 REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
 hello-world   latest    9c7a54a9a43c   4 months ago   13.3kB
 ```
@@ -83,12 +83,12 @@ hello-world   latest    9c7a54a9a43c   4 months ago   13.3kB
 このまま取っておくこともできるが、もう使わないなら
 
 ```sh
-009845da90b8:/src# docker rmi hello-world
+dind:/src$ docker rmi hello-world
 Untagged: hello-world:latest
 Untagged: hello-world@sha256:4f53e2564790c8e7856ec08e384732aa38dc43c52f02952483e3f003afbf23db
 Deleted: sha256:9c7a54a9a43cca047013b82af109fe963fde787f63f9e016fdc3384500c2823d
 Deleted: sha256:01bb4fce3eb1b56b05adf99504dafd31907a5aadac736e36b27595c8b92f07f1
-009845da90b8:/src# docker images
+dind:/src$ docker images
 REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
 ```
 
@@ -99,7 +99,7 @@ REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
 nodeの入ったイメージでnodeのバージョンを出してみる
 
 ```sh
-009845da90b8:/src# docker run --rm node:slim node --version
+dind:/src$ docker run --rm node:slim node --version
 Unable to find image 'node:slim' locally
 slim: Pulling from library/node
 a803e7c4b030: Pull complete
@@ -115,7 +115,7 @@ v20.7.0
 nodeでhello world
 
 ```sh
-009845da90b8:/src# docker run --rm node:slim node -e 'console.log("helloworld");'
+dind:/src$ docker run --rm node:slim node -e 'console.log("helloworld");'
 helloworld
 ```
 
@@ -124,7 +124,7 @@ node:slim と slimタグがついてるのはslimバージョンじゃないと�
 イメージを確認すると
 
 ```sh
-009845da90b8:/src# docker images
+dind:/src$ docker images
 REPOSITORY   TAG       IMAGE ID       CREATED      SIZE
 node         slim      2e95c92a0f1e   4 days ago   247MB
 ```
@@ -132,22 +132,22 @@ node         slim      2e95c92a0f1e   4 days ago   247MB
 では、このnodeをバックグラウンドで動かしてみよう
 
 ```sh
-009845da90b8:/src# docker run --rm -dt node:slim
+dind:/src$ docker run --rm -dt node:slim
 1faafc8c3ec00793e159369ce614b897a8486404ab7ea1e6ab2664d567adbbc0
-009845da90b8:/src# docker ps
+dind:/src$ docker ps
 CONTAINER ID   IMAGE       COMMAND                  CREATED         STATUS         PORTS     NAMES
 1faafc8c3ec0   node:slim   "docker-entrypoint.s…"   3 seconds ago   Up 2 seconds             stupefied_matsumoto
 ```
 コンテナIDで止めたりするのが面倒なので、一旦止めて名前をつけて起動し直す
 
 ```sh
-009845da90b8:/src# docker kill 1faafc8c3ec0
+dind:/src$ docker kill 1faafc8c3ec0
 1faafc8c3ec0
-009845da90b8:/src# docker ps
+dind:/src$ docker ps
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
-009845da90b8:/src# docker run --rm -dt --name my_node node:slim
+dind:/src$ docker run --rm -dt --name my_node node:slim
 98c703287c92fd727670edf3590bca36815f50266b20494df3dd523f13250362
-009845da90b8:/src# docker ps
+dind:/src$ docker ps
 CONTAINER ID   IMAGE       COMMAND                  CREATED         STATUS         PORTS     NAMES
 98c703287c92   node:slim   "docker-entrypoint.s…"   5 seconds ago   Up 4 seconds             my_node
 ```
@@ -158,7 +158,7 @@ my_nodeという形でnodeが立ち上がっている
 このバックグラウンドで動作しているmy_nodeでhello_worldを出力させてみる
 
 ```sh
-009845da90b8:/src# docker exec my_node node -e 'console.log("hello-world");'
+dind:/src$ docker exec my_node node -e 'console.log("hello-world");'
 hello-world
 ```
 
@@ -167,17 +167,17 @@ hello-world
 `docker exec` は動作しているコンテナに接続しているので、ファイルを書き換えるとコンテナが動作している間保存される。
 
 ```sh
-e61b3fb56fff:/src# docker exec my_node sh -c 'echo hello world > /tmp/hello.txt'
-e61b3fb56fff:/src# docker exec my_node sh -c 'cat /tmp/hello.txt'
+dind:/src$ docker exec my_node sh -c 'echo hello world > /tmp/hello.txt'
+dind:/src$ docker exec my_node sh -c 'cat /tmp/hello.txt'
 hello world
 ```
 
 終わったので削除する
 
 ```sh
-009845da90b8:/src# docker kill my_node
+dind:/src$ docker kill my_node
 my_node
-009845da90b8:/src# docker ps
+dind:/src$ docker ps
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 ```
 
@@ -187,7 +187,7 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 [node](https://hub.docker.com/_/node)と[python](https://hub.docker.com/_/python)のコンテナイメージをダウンロード
 
 ```sh
-009845da90b8:/src# docker pull node:slim
+dind:/src$ docker pull node:slim
 slim: Pulling from library/node
 a803e7c4b030: Pull complete
 1422c0cc5b32: Pull complete
@@ -197,7 +197,7 @@ c9d941e20b9f: Pull complete
 Digest: sha256:24a8b77508a4edaa99ef31f020e915da31c87068b4164d6746bf0c1684c71f98
 Status: Downloaded newer image for node:slim
 docker.io/library/node:slim
-009845da90b8:/src# docker pull python:slim
+dind:/src$ docker pull python:slim
 slim: Pulling from library/python
 a803e7c4b030: Already exists
 bf3336e84c8e: Pull complete
@@ -212,11 +212,11 @@ docker.io/library/python:slim
 この２つのコンテナイメージをバックグラウンドで同時起動してみる
 
 ```sh
-009845da90b8:/src# docker run --rm -td --name my_node node:slim
+dind:/src$ docker run --rm -td --name my_node node:slim
 398c15ac22b4091f16563c36e23e458b10840cb9cbc181f647acdb9518e70644
-009845da90b8:/src# docker run --rm -td --name my_python python:slim
+dind:/src$ docker run --rm -td --name my_python python:slim
 fdf8c0381986bf0401a84150d2ae1c537a5bd5ea34861020c5099a3ede77bd21
-009845da90b8:/src# docker ps
+dind:/src$ docker ps
 CONTAINER ID   IMAGE         COMMAND                  CREATED          STATUS          PORTS     NAMES
 fdf8c0381986   python:slim   "python3"                3 seconds ago    Up 2 seconds              my_python
 398c15ac22b4   node:slim     "docker-entrypoint.s…"   19 seconds ago   Up 19 seconds             my_node
@@ -226,18 +226,18 @@ fdf8c0381986   python:slim   "python3"                3 seconds ago    Up 2 seco
 これがコンテナの醍醐味でもある。
 
 ```sh
-009845da90b8:/src# docker exec my_node node -e 'console.log("helloworld")'
+dind:/src$ docker exec my_node node -e 'console.log("helloworld")'
 helloworld
-009845da90b8:/src# docker exec my_python python -c 'print("helloworld")'
+dind:/src$ docker exec my_python python -c 'print("helloworld")'
 helloworld
 ```
 
 もちろん my_nodeコンテナではpythonは動かないし、逆もそう。
 
 ```sh
-009845da90b8:/src# docker exec my_python node -e 'console.log("helloworld")'
+dind:/src$ docker exec my_python node -e 'console.log("helloworld")'
 OCI runtime exec failed: exec failed: unable to start container process: exec: "node": executable file not found in $PATH: unknown
-009845da90b8:/src# docker exec my_node python -c 'print("helloworld")'
+dind:/src$ docker exec my_node python -c 'print("helloworld")'
 OCI runtime exec failed: exec failed: unable to start container process: exec: "python": executable file not found in $PATH: unknown
 ```
 
@@ -245,10 +245,10 @@ OCI runtime exec failed: exec failed: unable to start container process: exec: "
 メンテナが楽になる。
 
 ```sh
-009845da90b8:/src# docker kill my_node my_python
+dind:/src$ docker kill my_node my_python
 my_node
 my_python
-009845da90b8:/src# docker ps
+dind:/src$ docker ps
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 ```
 
@@ -272,8 +272,8 @@ STOPPED-->|start|RUNNING
 まずはpythonのプログラムを作る
 
 ```sh
-2c65a0fa7845:/src# echo 'print("hello world")' > my_program.py
-2c65a0fa7845:/src# cat my_program.py
+dind:/src$ echo 'print("hello world")' > my_program.py
+dind:/src$ cat my_program.py
 print("hello world")
 ```
 
@@ -282,8 +282,8 @@ FROM句は、どのコンテナイメージをベースにするかが記述さ�
 COPY句は、ホストマシンからコンテナへのファイルのコピー
 
 ```sh
-2c65a0fa7845:/src# echo -e 'FROM python:slim\nCOPY my_program.py /src/my_program.py' > Dockerfile
-2c65a0fa7845:/src# cat Dockerfile
+dind:/src$ echo -e 'FROM python:slim\nCOPY my_program.py /src/my_program.py' > Dockerfile
+dind:/src$ cat Dockerfile
 FROM python:slim
 COPY my_program.py /src/my_program.py
 ```
@@ -291,7 +291,7 @@ COPY my_program.py /src/my_program.py
 ビルドする。 `-t` でイメージ名をつけることができる
 
 ```sh
-2c65a0fa7845:/src# docker build . -t my_prog
+dind:/src$ docker build . -t my_prog
 [+] Building 0.0s (7/7) FINISHED                                                                                       docker:default
  => [internal] load .dockerignore                                                                                                0.0s
  => => transferring context: 2B                                                                                                  0.0s
@@ -306,7 +306,7 @@ COPY my_program.py /src/my_program.py
  => => exporting layers                                                                                                          0.0s
  => => writing image sha256:e8aa0a60dd3b8c77b152cf8e6d67c495d388d91a365fd19b39779520a15de75e                                     0.0s
  => => naming to docker.io/library/my_prog                                                                                       0.0s
-2c65a0fa7845:/src# docker images
+dind:/src$ docker images
 REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
 my_prog      latest    e8aa0a60dd3b   6 seconds ago   130MB
 python       slim      69c35b67c597   4 weeks ago     130MB
@@ -315,9 +315,9 @@ python       slim      69c35b67c597   4 weeks ago     130MB
 では実行してみる
 
 ```sh
-2c65a0fa7845:/src# docker run --rm my_prog sh -c "ls /src"
+dind:/src$ docker run --rm my_prog sh -c "ls /src"
 my_program.py
-2c65a0fa7845:/src# docker run --rm my_prog python /src/my_program.py
+dind:/src$ docker run --rm my_prog python /src/my_program.py
 hello world
 ```
 
@@ -331,12 +331,12 @@ hello world
 ついでに自動実行してみる。DockerfileのCMDセクションはコンテナの自動実行を指定する。
 
 ```sh
-2c65a0fa7845:/src# echo 'CMD ["python", "/src/my_program.py"]' >> Dockerfile
-2c65a0fa7845:/src# cat Dockerfile
+dind:/src$ echo 'CMD ["python", "/src/my_program.py"]' >> Dockerfile
+dind:/src$ cat Dockerfile
 FROM python:slim
 COPY my_program.py /src/my_program.py
 CMD ["python", "/src/my_program.py"]
-2c65a0fa7845:/src# docker build . -t my_prog
+dind:/src$ docker build . -t my_prog
 [+] Building 0.0s (7/7) FINISHED                                                                                       docker:default
  => [internal] load build definition from Dockerfile                                                                             0.0s
  => => transferring dockerfile: 129B                                                                                             0.0s
@@ -351,26 +351,26 @@ CMD ["python", "/src/my_program.py"]
  => => exporting layers                                                                                                          0.0s
  => => writing image sha256:de3d1fe29b2d12158489e4c269f76b4d4c7a7bf8b8d68cf9ac9a1aa90a67c48e                                     0.0s
  => => naming to docker.io/library/my_prog                                                                                       0.0s
-2c65a0fa7845:/src# docker images
+dind:/src$ docker images
 REPOSITORY   TAG       IMAGE ID       CREATED          SIZE
 my_prog      latest    de3d1fe29b2d   31 minutes ago   130MB
 <none>       <none>    e8aa0a60dd3b   31 minutes ago   130MB
 python       slim      69c35b67c597   4 weeks ago      130MB
-2c65a0fa7845:/src# docker run --rm my_prog
+dind:/src$ docker run --rm my_prog
 hello world
 ```
 
 では、作成したイメージも含めすべてのイメージを削除する
 
 ```sh
-2c65a0fa7845:/src# docker images -q | xargs docker rmi
+dind:/src$ docker images -q | xargs docker rmi
 Deleted: sha256:e8aa0a60dd3b8c77b152cf8e6d67c495d388d91a365fd19b39779520a15de75e
 Untagged: my_prog:latest
 Deleted: sha256:de3d1fe29b2d12158489e4c269f76b4d4c7a7bf8b8d68cf9ac9a1aa90a67c48e
 Untagged: python:slim
 Untagged: python@sha256:edaf703dce209d774af3ff768fc92b1e3b60261e7602126276f9ceb0e3a96874
 Deleted: sha256:69c35b67c5979b527ea7f3551c790c808f1e440b3221a447a387f45cdf1b8080
-2c65a0fa7845:/src# docker images
+dind:/src$ docker images
 REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
 ```
 
@@ -381,19 +381,19 @@ REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
 ホストのカレントディレクトリに`hello.txt`を作っても、もちろんコンテナ内では見えない。
 
 ```sh
-6b6d5be0ee3d:/src# echo hello-world > hello.txt
-6b6d5be0ee3d:/src# cat hello.txt
+dind:/src$ echo hello-world > hello.txt
+dind:/src$ cat hello.txt
 hello-world
-6b6d5be0ee3d:/src# docker run --rm python:slim bash -c 'ls /src'
+dind:/src$ docker run --rm python:slim bash -c 'ls /src'
 ls: cannot access '/src': No such file or directory
 ```
 
 ところが、 `-v .:/src` でカレントディレクトリをコンテナの`/src` にマウントすることができる
 
 ```sh
-6b6d5be0ee3d:/src# docker run --rm -v .:/src python:slim bash -c 'ls /src'
+dind:/src$ docker run --rm -v .:/src python:slim bash -c 'ls /src'
 hello.txt
-6b6d5be0ee3d:/src# docker run --rm -v .:/src python:slim bash -c 'cat /src/hello.txt'
+dind:/src$ docker run --rm -v .:/src python:slim bash -c 'cat /src/hello.txt'
 hello-world
 ```
 
@@ -409,13 +409,13 @@ my_volumeというvolumeを作成し、pythonコンテナの`/src`にマウン�
 次に、nodeコンテナもmy_volumeを`/src`にマウントしhello.txtを読むことができる
 
 ```sh
-6b6d5be0ee3d:/src# docker volume create my_volume
+dind:/src$ docker volume create my_volume
 my_volume
-6b6d5be0ee3d:/src# docker volume ls
+dind:/src$ docker volume ls
 DRIVER    VOLUME NAME
 local     my_volume
-6b6d5be0ee3d:/src# docker run --rm -v my_volume:/src python:slim bash -c 'echo hello-world > /src/hello.txt'
-6b6d5be0ee3d:/src# docker run --rm -v my_volume:/src node:slim bash -c 'cat /src/hello.txt'
+dind:/src$ docker run --rm -v my_volume:/src python:slim bash -c 'echo hello-world > /src/hello.txt'
+dind:/src$ docker run --rm -v my_volume:/src node:slim bash -c 'cat /src/hello.txt'
 hello-world
 ```
 
@@ -426,13 +426,51 @@ hello-world
 volumeの削除は`docker volumes rm volume名`
 
 ```sh
-6b6d5be0ee3d:/src# docker volume ls
+dind:/src$ docker volume ls
 DRIVER    VOLUME NAME
 local     my_volume
-6b6d5be0ee3d:/src# docker volume rm my_volume
+dind:/src$ docker volume rm my_volume
 my_volume
-6b6d5be0ee3d:/src# docker volume ls
+dind:/src$ docker volume ls
 DRIVER    VOLUME NAME
+```
+
+## ホストへのポートマッピング
+
+コンテナ上でサービスされているポートをホストへマッピングすることができる
+
+通常は以下のようにできない。
+
+```sh
+dind:/src$ docker run --rm -d --name my_nginx nginx
+9e1f3fc891abf13317f32fab23de11c1d8849c5042320506146d08e0797ceb31
+dind:/src$ docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS     NAMES
+9e1f3fc891ab   nginx     "/docker-entrypoint.…"   5 seconds ago   Up 5 seconds   80/tcp    my_nginx
+dind:/src$ curl http://localhost
+curl: (7) Failed to connect to localhost port 80 after 0 ms: Couldn't connect to server
+dind:/src$ docker stop my_nginx
+my_nginx
+dind:/src$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+```
+
+`-p`オプションでコンテナのポートをホストへマッピングすることができる
+
+```sh
+dind:/src$ docker run --rm -d -p 80:80 --name my_nginx nginx
+d14ccae2426c28382e00e8b46d319af735936833b11f800bc99db9ed1421611b
+dind:/src$ docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                NAMES
+d14ccae2426c   nginx     "/docker-entrypoint.…"   4 seconds ago   Up 3 seconds   0.0.0.0:80->80/tcp   my_nginx
+dind:/src$ curl http://localhost
+（略）
+<title>Welcome to nginx!</title>
+（略）
+dind:/src$ docker stop my_nginx
+my_nginx
+dind:/src$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 ```
 
 ## docker-compose
